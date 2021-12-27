@@ -1,0 +1,35 @@
+image: docker:latest
+services:
+  - docker:dind
+stages:
+  - build
+  - deploy
+variables:
+  CONTAINER_TAG: ${CI_COMMIT_SHORT_SHA}
+  REPO_DOCKERHUB_FE: lirgautaemnnzn/pythonApp_fe
+  REPO_DOCKERHUB_BE: lirgautaemnnzn/pythonApp_be
+build:
+  stage: build
+  before_script:
+    - docker login -u ${CI_REGISTRY_USER} -p ${CI_REGISTRY_PASSWORD}
+  script:
+    - docker build -t ${REPO_DOCKERHUB_FE}:${CONTAINER_TAG} . -f weather-frontend/Dockerfile
+    - docker tag ${REPO_DOCKERHUB_FE}:${CONTAINER_TAG} ${REPO_DOCKERHUB_FE}:${CONTAINER_TAG}
+    - docker tag ${REPO_DOCKERHUB_FE}:${CONTAINER_TAG} lirgautaemnnzn/pythonApp_fe:latest
+    - docker push ${REPO_DOCKERHUB_FE}:${CONTAINER_TAG}
+    - docker build -t ${REPO_DOCKERHUB_BE}:${CONTAINER_TAG} . -f weather-frontend/Dockerfile
+    - docker tag ${REPO_DOCKERHUB_BE}:${CONTAINER_TAG} ${REPO_DOCKERHUB_BE}:${CONTAINER_TAG}
+    - docker tag ${REPO_DOCKERHUB_BE}:${CONTAINER_TAG} lirgautaemnnzn/pythonApp_be:latest
+    - docker push ${REPO_DOCKERHUB_BE}:${CONTAINER_TAG}
+deploy:
+  stage: deploy
+  image: dtzar/helm-kubectl
+  script:
+    - kubectl config set-cluster k8s --server="${SERVER}"
+    - kubectl config set clusters.k8s.certificate-authority-data ${CERTIFICATE_AUTHORITY_DATA}
+    - kubectl config set-credentials gitlab --token="${USER_TOKEN}"
+    - kubectl config set-context default --cluster=k8s --user=gitlab
+    - kubectl config use-context default
+    - kubectl apply -f weather-frontend/manifests/ -f weather-backend/manifests/
+  only:
+   - main

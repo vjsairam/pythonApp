@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pyweather-frontend-deployment
+  labels:
+    tier: frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        tier: frontend
+    spec:
+      containers:
+      - name: pyweather-frontend
+        image: tunzor/pyweather-frontend:distroless
+        ports:
+        - containerPort: 5002
+        env:
+        - name: WEATHER_SVC_URL
+          valueFrom:
+            configMapKeyRef:
+              name: frontend-configmap
+              key: backend_url
