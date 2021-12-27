@@ -1,8 +1,8 @@
 # PyWeather Application
-Application to display the weather status.
+Application to display the weather status. https://github.com/vjsairam/pythonApp/tree/master/pyweather
 
 ### Environment 
-EKS cluster is created through Terraform for the deployment. 
+EKS cluster is created through Terraform for the deployment. https://github.com/vjsairam/pythonApp/tree/master/terraform-eks-cluster
 
 ### Backend
 The backend service uses a ClusterIP to make the service accessible only within the cluster.
