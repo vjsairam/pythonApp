@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pyweather-backend-svc
+spec:
+  type: ClusterIP
+  selector:
+    tier: backend
+  ports:
+    - port: 8053
+      targetPort: 5003
